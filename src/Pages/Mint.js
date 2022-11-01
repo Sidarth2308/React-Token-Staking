@@ -115,7 +115,7 @@ export default function Mint() {
           Your CUST Token balance : &nbsp; <b>{accountBalance}</b> &nbsp; CUST
         </Flex>
         {loading ? (
-          <Spinner mt="50px" />
+          <Spinner color="white" mt="50px" />
         ) : (
           <Flex direction="column" mt="50px">
             <Flex className="Mint-Input">

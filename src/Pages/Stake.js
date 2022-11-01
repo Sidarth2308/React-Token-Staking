@@ -170,12 +170,12 @@ export default function Stake() {
           Your CUST Token balance : &nbsp; <b>{accountBalance}</b> &nbsp; CUST
         </Flex>
         {checkStakeLoading ? (
-          <Spinner />
+          <Spinner color="white" />
         ) : stakeCreated ? (
           <>
             <Flex className="Stake-CreatedHeading">Stake already created</Flex>
             {fetchingStakeInfo ? (
-              <Spinner />
+              <Spinner color="white" />
             ) : (
               <Flex className="Stake-Info">
                 <Flex className="Stake-InfoField">
