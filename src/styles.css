@@ -1,0 +1,93 @@
+.Container {
+  min-height: 100vh;
+  width: 100%;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif;
+}
+.Navbar-Container {
+  width: 100%;
+  background-color: #333;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  justify-content: center;
+
+  padding: 15px 0;
+  margin-bottom: 150px;
+}
+.Navbar-Link {
+  margin-right: 100px;
+  cursor: pointer;
+  user-select: none;
+  color: white;
+  font-size: 18px;
+}
+.Navbar-Link:last-child {
+  margin-right: 0;
+}
+.Home-Container,
+.Mint-Container,
+.Stake-Container {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+}
+
+.Home-ConnectWallet {
+  background-color: white;
+  color: black;
+  padding: 30px;
+  font-size: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+  margin-top: 50px;
+
+  align-items: center;
+  justify-content: center;
+}
+.Mint-Button {
+  background-color: white;
+  color: black;
+  padding: 30px;
+  font-size: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+  margin-top: 20px;
+  align-items: center;
+  justify-content: center;
+}
+.Mint-Input {
+  align-items: center;
+}
+.Mint-Label {
+  font-size: 20px;
+}
+
+.Mint-Balance {
+  font-size: 32px;
+}
+.Stake-Form {
+  flex-direction: column;
+}
+.Stake-Field {
+  flex-direction: column;
+  margin-top: 30px;
+}
+.Stake-Label {
+  color: white;
+  font-size: 20px;
+}
+.Stake-CreatedHeading {
+  color: white;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+.Stake-Info {
+  flex-direction: column;
+}
+.Stake-InfoLabel {
+  color: white;
+  font-size: 18px;
+}
