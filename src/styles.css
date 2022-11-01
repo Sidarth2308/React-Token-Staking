@@ -64,10 +64,12 @@
 }
 .Mint-Label {
   font-size: 20px;
+  color:white;
 }
 
 .Mint-Balance {
   font-size: 32px;
+  color:white;
 }
 .Stake-Form {
   flex-direction: column;
@@ -91,4 +93,7 @@
 .Stake-InfoLabel {
   color: white;
   font-size: 18px;
+}
+.Stake-InfoValue{
+    color:white;
 }
