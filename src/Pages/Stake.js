@@ -205,6 +205,7 @@ export default function Stake() {
               <Flex className="Stake-Field">
                 <Flex className="Stake-Label">Stake Duration (In Seconds)</Flex>
                 <Input
+                  color="white"
                   value={stakeForm.duration}
                   onChange={(e) => {
                     setStakeForm((prev) => {
@@ -216,6 +217,7 @@ export default function Stake() {
               <Flex className="Stake-Field">
                 <Flex className="Stake-Label">Stake Amount</Flex>
                 <Input
+                  color="white"
                   value={stakeForm.amount}
                   onChange={(e) => {
                     setStakeForm((prev) => {
