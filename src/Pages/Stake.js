@@ -144,10 +144,11 @@ export default function Stake() {
 
         const result = await newContract.addToStake(currentAccount);
         setFetchingStakeInfo(false);
-        console.log(result);
         setStakeInfo({
           amount: ethers.utils.formatEther(result[0]._hex),
-          duration: parseInt(result[2]._hex, 16).toString(),
+          duration: (
+            parseInt(result[2]._hex, 16) - parseInt(result[1]._hex, 16)
+          ).toString(),
           rate: parseInt(result[3]._hex, 16).toString()
         });
       }
@@ -207,9 +208,7 @@ export default function Stake() {
         const signer = provider.getSigner();
         const stakeContract = new ethers.Contract(contractAddress, abi, signer);
         console.log("Initializing unstaking");
-        let stakeTxn = await stakeContract.reward_per_person(currentAccount, {
-          gasLimit: 100000
-        });
+        let stakeTxn = await stakeContract.reward_per_person(currentAccount);
 
         console.log("Unstaking present stake... please wait");
         await stakeTxn.wait();
