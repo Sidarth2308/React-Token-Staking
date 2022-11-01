@@ -5,9 +5,7 @@ import Navbar from "../Components/Navbar";
 import contract from "../contract.json";
 import { useNavigate } from "react-router-dom";
 import tokenAbiContract from "./tokenAbi.json";
-
-const contractAddress = "0xa754802CC242aF470FD62edD2c98ab6cce739abA";
-const tokenContractAddress = "0x925947cB4dcDd71676D9a50d77720A1441460e37";
+import { contractAddress, tokenContractAddress } from "../config/config";
 
 const tokenAbi = tokenAbiContract.abi;
 const abi = contract.abi;
@@ -22,6 +20,11 @@ export default function Stake() {
   const [checkStakeLoading, setCheckStakeLoading] = useState(false);
   const [stakeCreated, setStakeCreated] = useState(false);
   const [fetchingStakeInfo, setFetchingStakeInfo] = useState(false);
+  const [stakeTimeLeft, setStakeTimeLeft] = useState(0);
+  const [stakeTimeFetch, setStakeTimeFetch] = useState(false);
+  const [stakeRewardFetch, setStakeRewardFetch] = useState(false);
+  const [stakeReward, setStakeReward] = useState("0");
+  const [unStakeLoading, setUnStakeLoading] = useState(false);
   const [stakeForm, setStakeForm] = useState({
     duration: "0",
     amount: "0"
@@ -79,7 +82,7 @@ export default function Stake() {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const stakeContract = new ethers.Contract(contractAddress, abi, signer);
-        console.log("Initialize payment");
+        console.log("Initializing staking payment");
         let stakeTxn = await stakeContract.create_stake(
           currentAccount,
           stakePercentage,
@@ -92,7 +95,7 @@ export default function Stake() {
         setLoading(false);
         setStakeCreated(true);
         console.log(
-          `Mined, see transaction: https://goerli.etherscan.io/tx/${stakeTxn.hash}`
+          `Transaction complete, see transaction: https://goerli.etherscan.io/tx/${stakeTxn.hash}`
         );
         checkUserBalance();
       } else {
@@ -100,6 +103,7 @@ export default function Stake() {
         setLoading(false);
       }
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   };
@@ -140,17 +144,96 @@ export default function Stake() {
 
         const result = await newContract.addToStake(currentAccount);
         setFetchingStakeInfo(false);
+        console.log(result);
         setStakeInfo({
           amount: ethers.utils.formatEther(result[0]._hex),
           duration: parseInt(result[2]._hex, 16).toString(),
           rate: parseInt(result[3]._hex, 16).toString()
         });
-        console.log(result);
       }
     } catch (err) {
       console.log(err);
       setFetchingStakeInfo(true);
     }
+  };
+  const checkStakeTimeLeft = async () => {
+    setStakeTimeFetch(true);
+    try {
+      const { ethereum } = window;
+      if (currentAccount && ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const newContract = new ethers.Contract(contractAddress, abi, signer);
+
+        const result = await newContract.timeleft(currentAccount);
+        const answer = parseInt(result._hex, 16);
+        if (answer < 0) {
+          setStakeTimeLeft(0);
+        } else {
+          setStakeTimeLeft(answer);
+        }
+
+        setStakeTimeFetch(false);
+      }
+    } catch (err) {
+      console.log(err);
+      setStakeTimeFetch(true);
+    }
+  };
+  const checkStakeReward = async () => {
+    setStakeRewardFetch(true);
+    try {
+      const { ethereum } = window;
+      if (currentAccount && ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const newContract = new ethers.Contract(contractAddress, abi, signer);
+
+        const result = await newContract.checkReward(currentAccount);
+        setStakeReward(parseInt(result._hex, 16).toString());
+        setStakeRewardFetch(false);
+      }
+    } catch (err) {
+      console.log(err);
+      setStakeRewardFetch(true);
+    }
+  };
+  const unStakeHandler = async () => {
+    try {
+      const { ethereum } = window;
+      setUnStakeLoading(true);
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const stakeContract = new ethers.Contract(contractAddress, abi, signer);
+        console.log("Initializing unstaking");
+        let stakeTxn = await stakeContract.reward_per_person(currentAccount, {
+          gasLimit: 100000
+        });
+
+        console.log("Unstaking present stake... please wait");
+        await stakeTxn.wait();
+        setUnStakeLoading(false);
+        setStakeCreated(false);
+        console.log(
+          `Transaction complete, see transaction: https://goerli.etherscan.io/tx/${stakeTxn.hash}`
+        );
+        checkUserBalance();
+      } else {
+        console.log("Ethereum object does not exist");
+        setUnStakeLoading(false);
+      }
+    } catch (err) {
+      setUnStakeLoading(false);
+      console.log(err);
+    }
+  };
+  const unStakeTokenButton = () => {
+    return (
+      <Flex onClick={unStakeHandler} className="Mint-Button">
+        {unStakeLoading ? <Spinner />:"Un-Stake current stake"}
+      </Flex>
+    );
   };
   useEffect(() => {
     checkWalletIsConnected();
@@ -159,6 +242,8 @@ export default function Stake() {
   }, [currentAccount]);
   useEffect(() => {
     if (stakeCreated) {
+      checkStakeTimeLeft();
+      checkStakeReward();
       getStakeInformation();
     }
   }, [stakeCreated]);
@@ -174,31 +259,54 @@ export default function Stake() {
         ) : stakeCreated ? (
           <>
             <Flex className="Stake-CreatedHeading">Stake already created</Flex>
-            {fetchingStakeInfo ? (
+            {fetchingStakeInfo || stakeTimeFetch || stakeRewardFetch ? (
               <Spinner color="white" />
             ) : (
-              <Flex className="Stake-Info">
-                <Flex className="Stake-InfoField">
-                  <Flex className="Stake-InfoLabel">
-                    Staked Amount : &nbsp;
+              <>
+                <Flex className="Stake-Info">
+                  <Flex className="Stake-InfoField">
+                    <Flex className="Stake-InfoLabel">
+                      Staked Amount : &nbsp;
+                    </Flex>
+                    <Flex className="Stake-InfoValue">
+                      <b>{stakeInfo.amount} </b>&nbsp; CUST
+                    </Flex>
                   </Flex>
-                  <Flex className="Stake-InfoValue">
-                    <b>{stakeInfo.amount} </b>&nbsp; CUST
+                  <Flex className="Stake-InfoField">
+                    <Flex className="Stake-InfoLabel">
+                      Staked Duration :&nbsp;
+                    </Flex>
+                    <Flex className="Stake-InfoValue">
+                      {stakeInfo.duration} Seconds
+                    </Flex>
+                  </Flex>
+                  <Flex className="Stake-InfoField">
+                    <Flex className="Stake-InfoLabel">
+                      Staking Rate :&nbsp;
+                    </Flex>
+                    <Flex className="Stake-InfoValue">{stakeInfo.rate}%</Flex>
+                  </Flex>
+                  <Flex className="Stake-TimeLeft">
+                    <Flex className="Stake-TimeLeftLabel">
+                      Time left until Stake matures :&nbsp;
+                    </Flex>
+                    <Flex className="Stake-TimeLeftValue">
+                      {stakeTimeLeft} seconds
+                    </Flex>
+                  </Flex>
+                  <Flex className="Stake-Reward">
+                    <Flex className="Stake-RewardLabel">
+                      Stake reward if un-staked right now :&nbsp;
+                    </Flex>
+                    <Flex className="Stake-RewardValue">{stakeReward}</Flex>
                   </Flex>
                 </Flex>
-                <Flex className="Stake-InfoField">
-                  <Flex className="Stake-InfoLabel">
-                    Staked Duration :&nbsp;
-                  </Flex>
-                  <Flex className="Stake-InfoValue">{stakeInfo.duration}</Flex>
-                </Flex>
-                <Flex className="Stake-InfoField">
-                  <Flex className="Stake-InfoLabel">Staking Rate :&nbsp;</Flex>
-                  <Flex className="Stake-InfoValue">{stakeInfo.rate}%</Flex>
-                </Flex>
-              </Flex>
+                <Flex>{unStakeTokenButton()}</Flex>
+              </>
             )}
           </>
+        ) : loading ? (
+          <Spinner />
         ) : (
           <>
             <Flex className="Stake-Form">

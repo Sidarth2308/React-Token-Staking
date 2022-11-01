@@ -4,11 +4,9 @@ import contract from "../contract.json";
 import tokenAbiContract from "./tokenAbi.json";
 import { Flex, Input, Spinner } from "@chakra-ui/react";
 import Navbar from "../Components/Navbar";
+import { contractAddress, tokenContractAddress } from "../config/config";
 
 import { useNavigate } from "react-router-dom";
-
-const contractAddress = "0xa754802CC242aF470FD62edD2c98ab6cce739abA";
-const tokenContractAddress = "0x925947cB4dcDd71676D9a50d77720A1441460e37";
 
 const tokenAbi = tokenAbiContract.abi;
 const abi = contract.abi;
@@ -121,6 +119,7 @@ export default function Mint() {
             <Flex className="Mint-Input">
               <Flex className="Mint-Label">Enter Mint Amount</Flex>
               <Input
+                color="white"
                 value={insertCommas(mintValue)}
                 onChange={(e) => {
                   setMintValue(e.target.value);
