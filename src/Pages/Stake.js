@@ -230,7 +230,7 @@ export default function Stake() {
   const unStakeTokenButton = () => {
     return (
       <Flex onClick={unStakeHandler} className="Mint-Button">
-        {unStakeLoading ? <Spinner />:"Un-Stake current stake"}
+        {unStakeLoading ? <Spinner color="white" /> : "Un-Stake current stake"}
       </Flex>
     );
   };
@@ -305,7 +305,7 @@ export default function Stake() {
             )}
           </>
         ) : loading ? (
-          <Spinner />
+          <Spinner color="white" />
         ) : (
           <>
             <Flex className="Stake-Form">
